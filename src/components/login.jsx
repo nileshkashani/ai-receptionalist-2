@@ -15,8 +15,9 @@ export default function Login() {
         setLoading(true)
         setError("")
         try {
-            await signInWithEmailAndPassword(auth, email, password).
-                then(() => navigate('/main'))
+            const resp = await signInWithEmailAndPassword(auth, email, password).
+                then((res) => { localStorage.setItem("uName", res.user.displayName); navigate('/main') });
+            console.log(resp)
         } catch (err) {
             setError(err.message)
         }
@@ -28,7 +29,7 @@ export default function Login() {
         setError("")
         try {
             await signInWithPopup(auth, googleProvider).
-            then(() => navigate('/main'))
+                then((res) => { localStorage.setItem("uName", res.user.displayName); navigate('/main') });
         } catch (err) {
             setError(err.message)
         }
@@ -86,6 +87,15 @@ export default function Login() {
                     />
                     Continue with Google
                 </button>
+                <p className="mt-4 text-sm text-center text-gray-400">
+                    New to Shaani.ai ?{" "}
+                    <span
+                        onClick={() => navigate("/signup")}
+                        className="text-white cursor-pointer hover:underline"
+                    >
+                        SignUp
+                    </span>
+                </p>
             </div>
         </div>
     )

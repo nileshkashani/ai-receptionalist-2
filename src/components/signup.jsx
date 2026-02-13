@@ -18,8 +18,8 @@ export default function Signup() {
     setLoading(true)
     setError("")
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
-        .then(() => navigate("/main"))
+      await createUserWithEmailAndPassword(auth, email, password).
+      then((res) => { localStorage.setItem("uName", res.user.displayName); navigate('/main') });
     } catch (err) {
       setError(err.message)
     }
@@ -30,8 +30,8 @@ export default function Signup() {
     setLoading(true)
     setError("")
     try {
-      await signInWithPopup(auth, googleProvider)
-        .then(() => navigate("/main"))
+      await signInWithPopup(auth, googleProvider).
+      then((res) => { localStorage.setItem("uName", res.user.displayName); navigate('/main') });
     } catch (err) {
       setError(err.message)
     }
@@ -91,6 +91,15 @@ export default function Signup() {
           />
           Continue with Google
         </button>
+         <p className="mt-4 text-sm text-center text-gray-400">
+          Already have an account?{" "}
+          <span
+            onClick={() => navigate("/login")}
+            className="text-white cursor-pointer hover:underline"
+          >
+            Login
+          </span>
+        </p>
       </div>
     </div>
   )

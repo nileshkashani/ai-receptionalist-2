@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import Vapi from "@vapi-ai/web";
 import { Mic, X, Loader2 } from "lucide-react";
+import ProfileMenu from "./profileMenu";
 
-const vapi = new Vapi(import.meta.env.VITE_VAPI_API_KEY) 
+const vapi = new Vapi(import.meta.env.VITE_VAPI_API_KEY)
 const assistantId = import.meta.env.VITE_VAPI_ASSISTANT_ID;
 
 const Main = () => {
@@ -11,18 +12,18 @@ const Main = () => {
   const [assistantIsSpeaking, setAssistantIsSpeaking] = useState(false);
   const [volumeLevel, setVolumeLevel] = useState(0); // AI Volume
   const [userVolume, setUserVolume] = useState(0);   // User Volume (New!)
-  const [transcript, setTranscript] = useState(""); 
-  
+  const [transcript, setTranscript] = useState("");
+
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const sourceRef = useRef(null);
 
-//   useEffect(() => {
-//     console.log(process.env.REACT_APP_VAPI_API_KEY)
-//   }, [])
-  
+  //   useEffect(() => {
+  //     console.log(process.env.REACT_APP_VAPI_API_KEY)
+  //   }, [])
+
   useEffect(() => {
     // --- VAPI EVENTS ---
     vapi.on("call-start", () => {
@@ -76,7 +77,7 @@ const Main = () => {
       const dataArray = new Uint8Array(bufferLength);
 
       source.connect(analyser);
-      
+
       audioContextRef.current = audioContext;
       analyserRef.current = analyser;
       dataArrayRef.current = dataArray;
@@ -103,10 +104,10 @@ const Main = () => {
       sum += dataArray[i];
     }
     const average = sum / dataArray.length;
-    
+
     // Normalize to 0-1 range (roughly)
     const normalizedVolume = Math.min(average / 100, 1);
-    
+
     setUserVolume(normalizedVolume);
     requestAnimationFrame(updateUserVolume);
   };
@@ -125,17 +126,17 @@ const Main = () => {
 
     const ctx = canvas.getContext("2d");
     let animationFrameId;
-    
+
     // Config
     const particles = [];
-    const particleCount = 450; 
+    const particleCount = 450;
     const baseRadius = 110;
 
     // Create particles
     for (let i = 0; i < particleCount; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos((Math.random() * 2) - 1);
-      
+
       particles.push({
         x: baseRadius * Math.sin(phi) * Math.cos(theta),
         y: baseRadius * Math.sin(phi) * Math.sin(theta),
@@ -161,7 +162,7 @@ const Main = () => {
       // --- LOGIC: DECIDE WHICH VOLUME TO USE ---
       // If AI is speaking, use AI volume. If AI is silent, use User volume.
       const activeVolume = assistantIsSpeaking ? volumeLevel : userVolume;
-      
+
       // Rotation speed increases with activity
       const rotationSpeed = 0.002 + (activeVolume * 0.05);
       angleY += rotationSpeed;
@@ -169,7 +170,7 @@ const Main = () => {
 
       // Expansion/Pulse effect
       // When speaking, the sphere expands outward
-      const expansionFactor = 1 + (activeVolume * 0.5); 
+      const expansionFactor = 1 + (activeVolume * 0.5);
 
       particles.forEach((p) => {
         // Expand particles based on volume
@@ -195,16 +196,16 @@ const Main = () => {
 
         // --- COLOR LOGIC ---
         if (assistantIsSpeaking) {
-           // TEAL glow for AI
-           ctx.fillStyle = `rgba(34, 211, 238, ${0.5 + activeVolume})`; 
+          // TEAL glow for AI
+          ctx.fillStyle = `rgba(34, 211, 238, ${0.5 + activeVolume})`;
         } else if (userVolume > 0.05) {
-           // WHITE/SILVER glow for USER
-           ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + activeVolume * 2})`;
+          // WHITE/SILVER glow for USER
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + activeVolume * 2})`;
         } else {
-           // DIM IDLE state
-           ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + (z2/baseRadius)*0.2})`;
+          // DIM IDLE state
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + (z2 / baseRadius) * 0.2})`;
         }
-        
+
         ctx.fill();
       });
 
@@ -226,14 +227,19 @@ const Main = () => {
 
   return (
     <div className="h-screen w-full bg-[#0a0a0a] text-white flex flex-col items-center justify-between py-12 relative overflow-hidden font-sans">
-      
+
+      <div className="absolute top-6 right-6 z-50">
+        <ProfileMenu />
+      </div>
+
+
       {/* Status Header */}
       <div className="z-10 text-center space-y-2">
         {connecting ? (
-           <div className="flex items-center gap-2 text-gray-400">
-             <Loader2 className="animate-spin w-4 h-4" />
-             <span className="text-sm tracking-wider uppercase">Connecting...</span>
-           </div>
+          <div className="flex items-center gap-2 text-gray-400">
+            <Loader2 className="animate-spin w-4 h-4" />
+            <span className="text-sm tracking-wider uppercase">Connecting...</span>
+          </div>
         ) : (
           <div className="h-6"></div>
         )}
@@ -242,14 +248,14 @@ const Main = () => {
       {/* Main Visual */}
       <div className="relative flex-1 w-full flex flex-col items-center justify-center">
         <div className="absolute top-1/4 w-full text-center px-4 z-20">
-             {connected && !transcript && !assistantIsSpeaking && userVolume < 0.1 && (
-                <p className="text-gray-500 animate-pulse text-lg">Say something...</p>
-             )}
-             {transcript && (
-               <p className="text-xl md:text-2xl font-light leading-relaxed max-w-2xl mx-auto text-gray-100 fade-in">
-                 "{transcript}"
-               </p>
-             )}
+          {connected && !transcript && !assistantIsSpeaking && userVolume < 0.1 && (
+            <p className="text-gray-500 animate-pulse text-lg">Say something...</p>
+          )}
+          {transcript && (
+            <p className="text-xl md:text-2xl font-light leading-relaxed max-w-2xl mx-auto text-gray-100 fade-in">
+              "{transcript}"
+            </p>
+          )}
         </div>
         <canvas ref={canvasRef} className="w-full max-w-[600px] h-[400px] z-10" />
       </div>
@@ -258,12 +264,12 @@ const Main = () => {
       <div className="z-10 flex flex-col items-center gap-6">
         {!connected ? (
           <button onClick={startCall} disabled={connecting} className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-white hover:bg-gray-200 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-             <Mic className="w-6 h-6 text-black group-hover:scale-110 transition-transform" />
+            <Mic className="w-6 h-6 text-black group-hover:scale-110 transition-transform" />
           </button>
         ) : (
           <button onClick={endCall} className="flex items-center gap-2 px-6 py-3 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors border border-gray-700">
-             <X className="w-4 h-4 text-red-400" />
-             <span className="text-sm font-medium">End Session</span>
+            <X className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-medium">End Session</span>
           </button>
         )}
       </div>
